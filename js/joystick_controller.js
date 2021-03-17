@@ -2,7 +2,8 @@ class JoystickController {
 	// stickID: ID of HTML element (representing joystick) that will be dragged
 	// maxDistance: maximum amount joystick can move in any direction
 	// deadzone: joystick must move at least this amount from origin to register value change
-	constructor( stickID, maxDistance, deadzone ) {
+	constructor( stickID, maxDistance, deadzone, orientation) {
+		this.orientation = orientation || 'both'
 		this.id = stickID;
 		// DOM element of the stick
 		this.stick = document.getElementById(stickID);
@@ -74,8 +75,10 @@ class JoystickController {
 		const yDiff = event.clientY - this.dragStart.y;
 		const angle = Math.atan2(yDiff, xDiff);
 		const distance = Math.min(maxDistance, Math.hypot(xDiff, yDiff));
-		const xPosition = distance * Math.cos(angle);
-		const yPosition = distance * Math.sin(angle);
+		const vertical = this.orientation === 'vertical' || this.orientation === 'both';
+		const horizontal = this.orientation === 'horizontal' || this.orientation === 'both';
+		const xPosition = horizontal ? distance * Math.cos(angle) : 0;
+		const yPosition = vertical ? distance * Math.sin(angle) : 0;
 
 		// move stick image to new position
 		this.stick.style.transform = `translate3d(${xPosition}px, ${yPosition}px, 0px)`;
@@ -87,7 +90,9 @@ class JoystickController {
 		const xPercent = parseFloat((xPosition2 / maxDistance).toFixed(4));
 		const yPercent = parseFloat((yPosition2 / maxDistance).toFixed(4));
 		    
-		this.value = { x: xPercent, y: yPercent };
+		this.value = { 
+			x: horizontal ? xPercent : 0,
+			y: vertical ? yPercent : 0 };
 	}
 
 	handleUp(event) {
