@@ -34,7 +34,6 @@ class JoystickController {
 		// all drag movements are instantaneous
 		this.stick.style.transition = '0s';
 
-		event.target.id = this.thumbId;
 		this.dragStart = { x: event.clientX, y: event.clientY };
 	}
 		
