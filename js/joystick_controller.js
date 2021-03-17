@@ -21,15 +21,12 @@ class JoystickController {
 		this._handleMove = this.handleMove.bind(this);
 		this._handleUp = this.handleUp.bind(this);
 		// add event listener
-		this.stick.addEventListener('mousedown', this._handleDown);
-		this.stick.addEventListener('touchstart', this._handleDown);
+		this.stick.addEventListener('pointerdown', this._handleDown);
 	}
 
 	handleDown(event) {
-		document.addEventListener('mousemove', this._handleMove, {passive: false});
-		document.addEventListener('touchmove', this._handleMove, {passive: false});
-		document.addEventListener('mouseup', this._handleUp);
-		document.addEventListener('touchend', this._handleUp);
+		document.addEventListener('pointermove', this._handleMove, {passive: false});
+		document.addEventListener('pointerup', this._handleUp);
 
 		// all drag movements are instantaneous
 		this.stick.style.transition = '0s';
@@ -50,6 +47,7 @@ class JoystickController {
 	}
 		
 	handleMove(event) {
+    event.preventDefault();
 		// if this is a touch event, make sure it is the right one
 		// also handle multiple simultaneous touchmove events
 		let touchmoveId = null;
@@ -65,7 +63,9 @@ class JoystickController {
 				}
 			}
 
-			if (touchmoveId == null) return;
+			if (touchmoveId == null) {
+        return;
+      }
 		}
 		const maxDistance = this.maxDistance;
 		const deadzone = this.deadzone;
@@ -92,8 +92,9 @@ class JoystickController {
 
 	handleUp(event) {
 		// if this is a touch event, make sure it is the right one
-		if (event.changedTouches && this.touchId != event.changedTouches[0].identifier) return;
-
+		if (event.changedTouches && this.touchId != event.changedTouches[0].identifier) {
+      return;
+    }
 		// transition the joystick position back to center
 		this.stick.style.transition = '.2s';
 		this.stick.style.transform = `translate3d(0px, 0px, 0px)`;
@@ -101,9 +102,7 @@ class JoystickController {
 		// reset everything
 		this.value = { x: 0, y: 0 };
 		this.touchId = null;
-		document.removeEventListener('mousemove', this._handleMove, {passive: false});
-		document.removeEventListener('touchmove', this._handleMove, {passive: false});
-		document.removeEventListener('mouseup', this._handleUp);
-		document.removeEventListener('touchend', this._handleUp);
+		document.removeEventListener('pointermove', this._handleMove, {passive: false});
+		document.removeEventListener('pointerup', this._handleUp);
 	}
 }
