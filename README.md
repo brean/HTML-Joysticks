@@ -1,2 +1,5 @@
 # HTML-Joysticks
-Simple joystick-style controls with HTML/Javascript, supporting desktop/touchscreen and multiple joysticks.
+
+Simple joystick-style controls with HTML/JavaScript, supporting desktop/touchscreen as well as mobile.
+
+Provides Joysticks in multiple colors. You can modify the SVG-file to easily change colors or add new ones if needed.
