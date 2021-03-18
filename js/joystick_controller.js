@@ -1,14 +1,22 @@
 class JoystickController {
-	// stickID: ID of HTML element (representing joystick) that will be dragged
-	// maxDistance: maximum amount joystick can move in any direction
-	// deadzone: joystick must move at least this amount from origin to register value change
-	constructor( stickID, maxDistance, deadzone, orientation) {
-		this.orientation = orientation || 'both'
+	/**
+	 * Handling pointer events for a Virtual JoyStick Controller.
+	 * 
+	 * @param {string} stickID ID of HTML element (representing joystick) that will be dragged
+	 * @param {number} maxDistance maximum amount joystick can move in any direction
+	 * @param {number} deadzone joystick must move at least this amount from origin to register value change
+	 * @param {string} orientation (optional) limit the stick only to vertical or horizontal direction (default: both)
+	 * @param {function} onChange (optional) callback called when the value changed
+	 */
+	constructor( stickID, maxDistance, deadzone, orientation, onChange) {
 		this.id = stickID;
-		// DOM element of the stick
-		this.stick = document.getElementById(stickID);
 		this.maxDistance = maxDistance;
 		this.deadzone = deadzone;
+		this.orientation = orientation || 'both'
+		this.onChange = onChange
+
+		// DOM element of the stick
+		this.stick = document.getElementById(stickID);
 
 		// location from which drag begins, used to calculate offsets
 		this.dragStart = null;
@@ -16,7 +24,7 @@ class JoystickController {
 		// track touch identifier in case multiple joysticks present
 		this.pointerId = -1;
 		
-		this.value = { x: 0, y: 0 }; 
+		this.value = {x: 0, y: 0}; 
 
 		this._handleDown = this.handleDown.bind(this);
 		this._handleMove = this.handleMove.bind(this);
@@ -30,11 +38,15 @@ class JoystickController {
 		this.pointerId = event.pointerId;
 		document.addEventListener('pointermove', this._handleMove, {passive: false});
 		document.addEventListener('pointerup', this._handleUp);
-
+		this.value = {x: 0, y: 0}; 
 		// all drag movements are instantaneous
 		this.stick.style.transition = '0s';
 
-		this.dragStart = { x: event.clientX, y: event.clientY };
+		this.dragStart = {x: event.clientX, y: event.clientY};
+
+		if (this.onChange) {
+			this.onChange(this.value);
+		}
 	}
 		
 	handleMove(event) {
@@ -67,7 +79,11 @@ class JoystickController {
 		    
 		this.value = { 
 			x: horizontal ? xPercent : 0,
-			y: vertical ? yPercent : 0 };
+			y: vertical ? yPercent : 0
+		};
+		if (this.onChange) {
+			this.onChange(this.value);
+		}
 	}
 
 	handleUp(event) {
@@ -80,6 +96,9 @@ class JoystickController {
 
 		// reset everything
 		this.value = { x: 0, y: 0 };
+		if (this.onChange) {
+			this.onChange(this.value);
+		}
 		document.removeEventListener('pointermove', this._handleMove, {passive: false});
 		document.removeEventListener('pointerup', this._handleUp);
 	}
